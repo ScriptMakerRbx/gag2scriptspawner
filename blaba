@@ -1,0 +1,31 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+print("==========================================")
+print("🛡️ PROTECTION ANTI-KICK ACTIVÉE")
+print("==========================================")
+
+-- Méthode 1 : Bloquer la fonction Kick directe sur votre joueur
+local oldKick
+oldKick = hookfunction(LocalPlayer.Kick, function(self, message)
+    print("⚠️ [STOPPED] Le script a tenté de vous kick avec le message : " .. tostring(message))
+    return nil -- On renvoie du vide pour annuler l'action
+end)
+
+-- Méthode 2 : Bloquer les tentatives via l'index global (Namecall)
+local namecallHook
+namecallHook = hookmetamethod(game, "__namecall", function(self, ...)
+    local method = getnamecallmethod()
+    
+    if (method == "Kick" or method == "kick") and self == LocalPlayer then
+        local args = {...}
+        print("⚠️ [STOPPED NAMECALL] Tentative de Kick interceptée ! Message : " .. tostring(args[1]))
+        return nil -- On annule l'envoi au serveur
+    end
+    
+    return namecallHook(self, ...)
+end)
+
+print("✅ Votre exécuteur va maintenant ignorer les ordres de Kick locaux.")
+print("👉 Vous pouvez maintenant exécuter votre script.")
+print("==========================================")
